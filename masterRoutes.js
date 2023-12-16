@@ -137,42 +137,63 @@ router.post('/create-bill', async (req, res) => {
   }
 });
 
-router.get('/get-billdetails', async (req, res) => {
+// router.get('/get-billdetails', async (req, res) => {
+//   try {
+//     const connection = await dbService.getConnection();
+
+//     const selectQuery = "SELECT MAX(CAST(agrnumber AS SIGNED)) AS maxCode FROM BillView";
+
+//     try {
+//       const results = await dbService.query(selectQuery);
+
+//       let nextCode;
+
+//       if (results.length > 0) {
+//         const maxCode = results[0].maxCode;
+//         nextCode = (maxCode !== null ? maxCode : 1).toString();
+//       } else {
+//         // If no records exist, start with '1' or any initial value you prefer
+//         nextCode = '1';
+//       }
+
+//       const query=`select * from BillView where agrnumber=${nextCode}`
+
+//       const results1 = await dbService.query(query);
+
+//       res.json({ data: results1 });
+//     } catch (error) {
+//       console.error('Error:', error.message);
+//       res.status(500).json({ error: 'Internal Server Error' });
+//     } finally {
+//       connection.release();
+//     }
+//   } catch (error) {
+//     console.error('Error getting data from the database:', error);
+//     res.status(500).send('Error storing data in the database');
+//   }
+// });
+
+
+router.get('/get-billdetails/:agrnumber', async (req, res) => {
+
+  const agrnumber = req.params.agrnumber;
+ // console.log("agr",agrnumber)
+  
   try {
     const connection = await dbService.getConnection();
 
-    const selectQuery = "SELECT MAX(CAST(agrnumber AS SIGNED)) AS maxCode FROM BillView";
 
-    try {
-      const results = await dbService.query(selectQuery);
+    const query = `select * from BillView where agrnumber=?`
 
-      let nextCode;
+    const results = await dbService.query(query, [agrnumber]);
+    connection.release();
 
-      if (results.length > 0) {
-        const maxCode = results[0].maxCode;
-        nextCode = (maxCode !== null ? maxCode : 1).toString();
-      } else {
-        // If no records exist, start with '1' or any initial value you prefer
-        nextCode = '1';
-      }
-
-      const query=`select * from BillView where agrnumber=${nextCode}`
-
-      const results1 = await dbService.query(query);
-
-      res.json({ data: results1 });
-    } catch (error) {
-      console.error('Error:', error.message);
-      res.status(500).json({ error: 'Internal Server Error' });
-    } finally {
-      connection.release();
-    }
+    res.json({ data: results });
   } catch (error) {
-    console.error('Error getting data from the database:', error);
-    res.status(500).send('Error storing data in the database');
-  }
+    console.error('Error:', error.message);
+    res.status(500).json({ error: 'Internal Server Error' });
+  } 
 });
-
 
 router.post('/create-party', async (req, res) => {
   const party = req.body;
@@ -185,14 +206,14 @@ router.post('/create-party', async (req, res) => {
   try {
     const connection = await dbService.getConnection();
     for (const p of party) {
-      const { partyname, rate, quantity, agrnumber, serialnumber,username } = p;
+      const { partyname, rate, quantity, agrnumber, serialnumber, username } = p;
 
       const query = `
         INSERT INTO TableB (partyname, rate, quantity,agrnumber,serialnumber,username)
         VALUES (?, ?, ?,?,?,?)
       `;
 
-      const values = [partyname, rate, quantity, agrnumber, serialnumber,username];
+      const values = [partyname, rate, quantity, agrnumber, serialnumber, username];
 
       await dbService.query(query, values);
     }
