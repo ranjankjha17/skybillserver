@@ -183,6 +183,21 @@ router.post('/login', async (req, res) => {
   }
 });
 
+
+router.post("/register", async (req, res) => {
+  const { username, password } = req.body;
+  try {
+    const connection = await dbService.getConnection();
+      const insertUserQuery = "INSERT INTO users (username, password) VALUES (?, ?)";
+      await connection.query(insertUserQuery, [username, password,]);
+      connection.release();
+      res.status(201).json({ message: "User registered successfully", success: true });    
+  } catch (error) {
+    console.error("Error during user registration:", error);
+    return res.status(500).json({ error: "Failed to register user" });
+  }
+});
+
 const executeQuery = (connection, query, values) => {
   return new Promise((resolve, reject) => {
     connection.query(query, values, (err, results) => {
