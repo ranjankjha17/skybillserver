@@ -4,6 +4,7 @@ const multer = require('multer');
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 const dbService = require('./dbService');
+const puppeteer = require('puppeteer');
 
 router.post('/create-bill', async (req, res) => {
   try {
@@ -88,6 +89,23 @@ router.get('/get-serialnumber', async (req, res) => {
   } catch (error) {
     console.error('Error getting data from the database:', error);
     res.status(500).send('Error storing data in the database');
+  }
+});
+
+router.post('/convertToBitmap', async (req, res) => {
+  const { htmlContent } = req.body;
+
+  try {
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
+    await page.setContent(htmlContent);
+    const screenshot = await page.screenshot({ encoding: 'base64' });
+    await browser.close();
+
+    res.json({ success: true, data: screenshot });
+  } catch (error) {
+    console.error('Error converting to bitmap:', error);
+    res.status(500).json({ success: false, error: 'Internal Server Error' });
   }
 });
 
