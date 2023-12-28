@@ -5,6 +5,7 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 const dbService = require('./dbService');
 const puppeteer = require('puppeteer');
+const printer = require('node-printer');
 
 router.post('/create-bill', async (req, res) => {
   try {
@@ -108,6 +109,45 @@ router.post('/convertToBitmap', async (req, res) => {
     res.status(500).json({ success: false, error: 'Internal Server Error' });
   }
 });
+
+
+// API endpoint to print HTML data
+router.post('/print', async (req, res) => {
+  const { htmlContent } = req.body;
+
+  if (!htmlContent) {
+    return res.status(400).json({ error: 'Missing htmlData in the request body' });
+  }
+
+  try {
+    const jobID = await printHTML(htmlContent);
+    res.json({ success: true, jobID });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error });
+  }
+});
+
+// Function to print HTML data
+const printHTML = async (htmlData) => {
+  return new Promise((resolve, reject) => {
+    const defaultPrinter = printer.getDefaultPrinterName();
+
+    const job = printer.printDirect({
+      data: htmlData,
+      printer: defaultPrinter,
+      type: 'RAW',
+      success: function (jobID) {
+        console.log(`Job ID: ${jobID}`);
+        resolve(jobID);
+      },
+      error: function (err) {
+        console.error(err);
+        reject('Failed to print');
+      },
+    });
+  });
+};
 
 
 module.exports = router;
