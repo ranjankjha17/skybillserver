@@ -20,13 +20,28 @@ router.post('/create-bill', async (req, res) => {
   }
 });
 
-router.get('/get-billdetails/:agrnumber', async (req, res) => {
-  const agrnumber = req.params.agrnumber;
+// router.get('/get-billdetails/:agrnumber', async (req, res) => {
+//   const agrnumber = req.params.agrnumber;
+//  // console.log("agr",agrnumber)
+//   try {
+//     const connection = await dbService.getConnection();
+//     const query = `select * from BillView where agrnumber=?`
+//     const results = await dbService.query(query, [agrnumber]);
+//     connection.release();
+//     res.json({ data: results });
+//   } catch (error) {
+//     console.error('Error:', error.message);
+//     res.status(500).json({ error: 'Internal Server Error' });
+//   } 
+// });
+
+router.get('/get-billdetails/:serialnumber', async (req, res) => {
+  const serialnumber = req.params.serialnumber;
  // console.log("agr",agrnumber)
   try {
     const connection = await dbService.getConnection();
-    const query = `select * from BillView where agrnumber=?`
-    const results = await dbService.query(query, [agrnumber]);
+    const query = `select * from BillsView where serialnumber=?`
+    const results = await dbService.query(query, [serialnumber]);
     connection.release();
     res.json({ data: results });
   } catch (error) {
