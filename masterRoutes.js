@@ -40,7 +40,7 @@ router.get('/get-billdetails/:serialnumber', async (req, res) => {
  // console.log("agr",agrnumber)
   try {
     const connection = await dbService.getConnection();
-    const query = `select * from BillsView where serialnumber=?`
+    const query = `select * from BillView2 where serialnumber=?`
     const results = await dbService.query(query, [serialnumber]);
     connection.release();
     res.json({ data: results });
